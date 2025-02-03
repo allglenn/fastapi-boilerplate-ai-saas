@@ -24,20 +24,6 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  ui:
-    build:
-      context: ./ui
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./ui:/app
-      - /app/node_modules
-    environment:
-      - WATCHPACK_POLLING=true
-      - NODE_ENV=development
-    depends_on:
-      - api
 
 volumes:
   postgres_data: 
