@@ -1,0 +1,43 @@
+services:
+  api:
+    build: 
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - ./api/.env
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./api/.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  ui:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./ui:/app
+      - /app/node_modules
+    environment:
+      - WATCHPACK_POLLING=true
+      - NODE_ENV=development
+    depends_on:
+      - api
+
+volumes:
+  postgres_data: 
