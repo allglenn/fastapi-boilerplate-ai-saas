@@ -34,3 +34,8 @@ class AuthController:
         auth_service = AuthService(db)
         await auth_service.logout(token)
         return {"message": "Successfully logged out"} 
+    
+    @staticmethod
+    async def refresh_token(token: str, db: AsyncSession) -> Token:
+        auth_service = AuthService(db)
+        return await auth_service.refresh_token(token)

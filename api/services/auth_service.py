@@ -8,6 +8,7 @@ from services.user_service import UserService
 from services.token_blacklist import TokenBlacklistService
 from utils.security import verify_password
 from config import settings
+from models.user import User
 
 class AuthService:
     def __init__(self, db: AsyncSession):
@@ -77,3 +78,9 @@ class AuthService:
 
     async def logout(self, token: str) -> None:
         await self.token_blacklist.blacklist_token(token) 
+    
+    async def refresh_token(self, token: str) -> Token:
+        user = await self.get_current_user(token)
+        await self.token_blacklist.blacklist_token(token) 
+        new_token = self.create_access_token(data={"sub": user.email})
+        return Token(access_token=new_token, token_type="bearer")

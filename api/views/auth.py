@@ -41,3 +41,10 @@ async def logout(
     db: AsyncSession = Depends(get_db)
 ):
     return await AuthController.logout(token, db) 
+
+@router.get("/refresh", response_model=Token)
+async def refresh_token(
+    token: str = Depends(oauth2_scheme),
+     db: AsyncSession = Depends(get_db)
+    ):
+    return await AuthController.refresh_token(token, db) 
