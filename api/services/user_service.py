@@ -4,7 +4,7 @@ from models.user import UserCreate, User, UserInDB
 from db.models import UserDB
 from utils.security import get_password_hash
 from datetime import datetime
-
+from models.user import UserUpdate
 class UserService:
     def __init__(self, db: AsyncSession):
         self.db = db
@@ -86,3 +86,14 @@ class UserService:
             return None
             
         return self._map_to_user_in_db(db_user)
+    
+    async def update_user(self, user_id: int, user_data: UserUpdate) -> User:
+        query = (
+            update(UserDB)
+            .where(UserDB.id == user_id)
+            .values(**user_data.model_dump(exclude_none=True))
+        )
+        await self.db.execute(query)
+        await self.db.commit()
+        db_user = await self.get_user(user_id)  
+        return self._map_to_user(db_user)

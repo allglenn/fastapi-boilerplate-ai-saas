@@ -1,7 +1,8 @@
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from models.user import User, UserCreate
+from models.user import User, UserCreate, UserUpdate
 from services.user_service import UserService
+
 
 class UserController:
     @staticmethod
@@ -22,3 +23,8 @@ class UserController:
         if user is None:
             raise HTTPException(status_code=404, detail="User not found")
         return user 
+    
+    @staticmethod
+    async def update_user(user_id: int, user_data: UserUpdate, db: AsyncSession) -> User:
+        user_service = UserService(db)
+        return await user_service.update_user(user_id, user_data)

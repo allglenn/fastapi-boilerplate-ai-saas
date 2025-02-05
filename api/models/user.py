@@ -31,3 +31,7 @@ class User(UserBase):
 
     class Config:
         from_attributes = True 
+
+class UserUpdate(UserBase):
+    full_name: Optional[str] = None
+    email: Optional[EmailStr] = None
