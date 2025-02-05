@@ -2,6 +2,7 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from db.models import UserRole
 
 class UserBase(BaseModel):
     email: EmailStr
@@ -16,6 +17,7 @@ class UserInDB(UserBase):
     hashed_password: str
     reset_token: Optional[str] = None
     reset_token_expires: Optional[datetime] = None
+    role: UserRole = UserRole.CLIENT
 
     class Config:
         from_attributes = True
@@ -28,6 +30,7 @@ class UserInDB(UserBase):
 class User(UserBase):
     id: int
     is_active: bool = True
+    role: UserRole = UserRole.CLIENT
 
     class Config:
         from_attributes = True 

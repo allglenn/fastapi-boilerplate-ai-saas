@@ -13,6 +13,8 @@ import secrets
 from services.mail_service import MailService
 from sqlalchemy import update
 from db.models import UserDB
+import os
+from string import Template
 
 
 class AuthService:
@@ -99,59 +101,29 @@ class AuthService:
         reset_token = secrets.token_urlsafe(32)
         expiration = datetime.utcnow() + timedelta(hours=24)
         
-        # Store reset token in database using the new method
+        # Store reset token in database
         await self.user_service.update_user_reset_token(
             email=email,
             reset_token=reset_token,
             expires=expiration
         )
 
+        # Read the email template
+        template_path = os.path.join('email-templates', 'auth', 'reset_password.html')
+        with open(template_path, 'r') as file:
+            template = Template(file.read())
+
+        # Format the template with user data
+        reset_link = f"{settings.DOMAIN_NAME}/reset-password?token={reset_token}"
+        html_content = template.safe_substitute(
+            app_name=settings.APP_NAME,
+            full_name=user.full_name,
+            email=user.email,
+            reset_link=reset_link
+        )
+        
         # Send email
         mail_service = MailService()
-        reset_link = f"{settings.DOMAIN_NAME}/reset-password?token={reset_token}"
-        html_content = f"""
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #333; text-align: center;">{settings.APP_NAME} - Password Reset</h2>
-            
-            <p>Hello,</p>
-            
-            <p>We received a request to reset your password for your {settings.APP_NAME} account. 
-            If you didn't make this request, you can safely ignore this email.</p>
-            
-            <p>To reset your password, click the button below. This link will expire in 24 hours:</p>
-            
-            <div style="text-align: center; margin: 30px 0;">
-                <a href="{reset_link}" 
-                   style="background-color: #007bff; 
-                          color: white; 
-                          padding: 12px 24px; 
-                          text-decoration: none; 
-                          border-radius: 4px;
-                          display: inline-block;">
-                    Reset Your Password
-                </a>
-            </div>
-            
-            <p>Or copy and paste this link into your browser:</p>
-            <p style="word-break: break-all; color: #006699;">{reset_link}</p>
-            
-            <p>For security reasons, this password reset link will expire in 24 hours. 
-            After that, you'll need to submit a new password reset request.</p>
-            
-            <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-            
-            <p style="color: #666; font-size: 0.9em;">
-                If you didn't request a password reset, please ignore this email or contact support 
-                if you have concerns about your account security.
-            </p>
-            
-            <p style="color: #666; font-size: 0.9em;">
-                Best regards,<br>
-                The {settings.APP_NAME} Team
-            </p>
-        </div>
-        """
-        
         await mail_service.send_email(
             to_email=email,
             subject=f"{settings.APP_NAME} - Password Reset Request",

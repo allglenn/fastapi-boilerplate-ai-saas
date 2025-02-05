@@ -5,9 +5,16 @@ from db.models import UserDB
 from utils.security import get_password_hash
 from datetime import datetime
 from models.user import UserUpdate
+from services.mail_service import MailService
+import os
+from string import Template
+from config import settings
+
+
 class UserService:
     def __init__(self, db: AsyncSession):
         self.db = db
+        self.mail_service = MailService()
 
     def _map_to_user_in_db(self, db_user: UserDB) -> UserInDB:
         return UserInDB(
@@ -17,7 +24,8 @@ class UserService:
             is_active=db_user.is_active,
             hashed_password=db_user.hashed_password,
             reset_token=db_user.reset_token,
-            reset_token_expires=db_user.reset_token_expires
+            reset_token_expires=db_user.reset_token_expires,
+            role=db_user.role
         )
 
     def _map_to_user(self, db_user: UserDB) -> User:
@@ -25,7 +33,29 @@ class UserService:
             id=db_user.id,
             email=db_user.email,
             full_name=db_user.full_name,
-            is_active=db_user.is_active
+            is_active=db_user.is_active,
+            role=db_user.role
+        )
+
+    async def _send_welcome_email(self, user: User) -> None:
+        # Read the email template
+        template_path = os.path.join('email-templates', 'auth', 'new_account.html')
+        with open(template_path, 'r') as file:
+            template = Template(file.read())
+
+        # Format the template with user data
+        html_content = template.safe_substitute(
+            app_name=settings.APP_NAME,
+            full_name=user.full_name,
+            email=user.email,
+            login_url=f"{settings.DOMAIN_NAME}/login"
+        )
+
+        # Send the welcome email
+        await self.mail_service.send_email(
+            to_email=user.email,
+            subject=f"Welcome to {settings.APP_NAME}!",
+            html_content=html_content
         )
 
     async def create_user(self, user: UserCreate) -> User:
@@ -40,8 +70,13 @@ class UserService:
         await self.db.commit()
         await self.db.refresh(db_user)
         
-        # Convert to Pydantic model and return
-        return self._map_to_user(db_user)
+        # Convert to Pydantic model
+        created_user = self._map_to_user(db_user)
+        
+        # Send welcome email
+        await self._send_welcome_email(created_user)
+        
+        return created_user
 
     async def get_user(self, user_id: int) -> User | None:
         query = select(UserDB).where(UserDB.id == user_id)

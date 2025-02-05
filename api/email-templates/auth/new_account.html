@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    "
+  >
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px">
+      <div style="text-align: center; padding: 20px 0">
+        <h1 style="color: #333; margin-bottom: 10px">
+          Welcome to ${app_name}!
+        </h1>
+      </div>
+
+      <div style="background-color: #ffffff; padding: 20px; border-radius: 5px">
+        <p>Hello ${full_name},</p>
+
+        <p>
+          Thank you for creating an account with ${app_name}. We're excited to
+          have you on board!
+        </p>
+
+        <p>
+          You can now log in to your account using your email address:
+          <strong>${email}</strong>
+        </p>
+
+        <div style="text-align: center; margin: 30px 0">
+          <a
+            href="${login_url}"
+            style="
+              background-color: #007bff;
+              color: white;
+              padding: 12px 24px;
+              text-decoration: none;
+              border-radius: 4px;
+              display: inline-block;
+            "
+          >
+            Login to Your Account
+          </a>
+        </div>
+
+        <p>
+          If you have any questions or need assistance, don't hesitate to
+          contact our support team.
+        </p>
+
+        <p>Best regards,<br />The ${app_name} Team</p>
+      </div>
+
+      <div
+        style="
+          text-align: center;
+          margin-top: 20px;
+          color: #666;
+          font-size: 12px;
+        "
+      >
+        <p>
+          This email was sent to ${email}. If you didn't create this account,
+          please ignore this email.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
