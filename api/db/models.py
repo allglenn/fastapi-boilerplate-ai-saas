@@ -11,6 +11,8 @@ class UserDB(Base):
     full_name = Column(String)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
+    reset_token = Column(String, nullable=True)
+    reset_token_expires = Column(DateTime, nullable=True)
 
 class BlacklistedToken(Base):
     __tablename__ = "blacklisted_tokens"

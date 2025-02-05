@@ -1,6 +1,8 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime
+from sqlalchemy import Column, Integer, String, Boolean, DateTime
+
 class UserBase(BaseModel):
     email: EmailStr
     full_name: str
@@ -17,6 +19,11 @@ class UserInDB(UserBase):
 
     class Config:
         from_attributes = True
+
+    __tablename__ = "users"
+    
+    reset_token = Column(String, nullable=True)
+    reset_token_expires = Column(DateTime, nullable=True)
 
 class User(UserBase):
     id: int

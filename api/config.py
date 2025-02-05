@@ -5,13 +5,11 @@ class Settings(BaseSettings):
     # Database settings
     DATABASE_URL: str
     
-    # Albert AI settings
-    ALBERT_AI_BASE_URL: str
-    ALBERT_AI_API_KEY: str
     
     # Application settings
     DEBUG: bool = True
     API_V1_PREFIX: str = "/api/v1"
+    APP_NAME: str = "Your App"  # Default app name
     
     # JWT Settings
     SECRET_KEY: str
