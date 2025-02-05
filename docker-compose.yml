@@ -9,11 +9,17 @@ services:
       - ./api:/app
     environment:
       - PYTHONUNBUFFERED=1
+      - DOMAIN_NAME=${DOMAIN_NAME:-http://localhost:3000}
     env_file:
       - ./api/.env
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     depends_on:
       - db
+  mailcatcher:
+    image: schickling/mailcatcher
+    ports:
+      - "1080:1080"  # Web interface
+      - "1025:1025"  # SMTP server
 
   db:
     image: postgres:15

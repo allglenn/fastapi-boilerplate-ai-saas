@@ -9,6 +9,8 @@ from services.token_blacklist import TokenBlacklistService
 from utils.security import verify_password
 from config import settings
 from models.user import User
+import secrets
+from services.mail_service import MailService
 
 class AuthService:
     def __init__(self, db: AsyncSession):
@@ -84,3 +86,35 @@ class AuthService:
         await self.token_blacklist.blacklist_token(token) 
         new_token = self.create_access_token(data={"sub": user.email})
         return Token(access_token=new_token, token_type="bearer")
+
+    async def create_password_reset_token(self, email: str) -> bool:
+        user = await self.user_service.get_user_by_email(email)
+        if not user:
+            return False
+        
+        # Generate reset token
+        reset_token = secrets.token_urlsafe(32)
+        expiration = datetime.utcnow() + timedelta(hours=24)
+        
+        # Store reset token in database
+        user.reset_token = reset_token
+        user.reset_token_expires = expiration
+        await self.db.commit()
+
+        # Send email
+        mail_service = MailService()
+        reset_link = f"{settings.DOMAIN_NAME}/reset-password?token={reset_token}"
+        html_content = f"""
+        <h2>Password Reset Request</h2>
+        <p>Click the link below to reset your password:</p>
+        <p><a href="{reset_link}">{reset_link}</a></p>
+        <p>This link will expire in 24 hours.</p>
+        """
+        
+        await mail_service.send_email(
+            to_email=email,
+            subject="Password Reset Request",
+            html_content=html_content
+        )
+        
+        return True

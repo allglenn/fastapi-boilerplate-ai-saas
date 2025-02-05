@@ -25,6 +25,14 @@ class Settings(BaseSettings):
     POSTGRES_HOST: str
     POSTGRES_PORT: int
     
+    # Domain name
+    DOMAIN_NAME: str = "http://localhost:3000"  # Default for local development
+    
+    # SMTP settings
+    SMTP_HOST: str = "mailcatcher"
+    SMTP_PORT: int = 1025
+    SENDER_EMAIL: str = "noreply@yourdomain.com"
+    
     class Config:
         env_file = ".env"
 

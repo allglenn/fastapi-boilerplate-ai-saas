@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Security
+from fastapi import APIRouter, Depends, Security, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.auth import Token, LoginRequest
@@ -6,6 +6,7 @@ from models.user import User
 from controllers.auth import AuthController
 from services.auth_service import AuthService
 from db.database import get_db
+from models.auth import PasswordResetRequest
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
@@ -48,3 +49,16 @@ async def refresh_token(
      db: AsyncSession = Depends(get_db)
     ):
     return await AuthController.refresh_token(token, db) 
+
+
+
+@router.post("/password-reset/request")
+async def request_password_reset(
+    reset_request: PasswordResetRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    auth_service = AuthService(db)
+    success = await auth_service.create_password_reset_token(reset_request.email)
+    
+    # Always return success to prevent email enumeration
+    return {"message": "If the email exists, a password reset link will be sent."} 
