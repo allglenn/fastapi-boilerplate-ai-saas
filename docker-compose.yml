@@ -36,5 +36,19 @@ services:
       timeout: 5s
       retries: 5
 
+  ui-admin:
+    build:
+      context: ./ui-admin
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./ui-admin:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:8000/api/v1
+    depends_on:
+      - api
+
 volumes:
   postgres_data: 
