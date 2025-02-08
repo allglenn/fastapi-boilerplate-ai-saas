@@ -10,6 +10,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
+    role: UserRole
 
 class UserInDB(UserBase):
     id: int

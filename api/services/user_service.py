@@ -9,7 +9,8 @@ from services.mail_service import MailService
 import os
 from string import Template
 from config import settings
-
+from db.models import UserRole
+from fastapi import HTTPException
 
 class UserService:
     def __init__(self, db: AsyncSession):
@@ -59,12 +60,16 @@ class UserService:
         )
 
     async def create_user(self, user: UserCreate) -> User:
+        # check if role is admin (remove this check when admin creation is implemented)
+        if user.role == UserRole.ADMIN:
+            raise HTTPException(status_code=400, detail="Admin role is not allowed to be created by this endpoint")
         # Create user in database
         hashed_password = get_password_hash(user.password)
         db_user = UserDB(
             email=user.email,
             full_name=user.full_name,
-            hashed_password=hashed_password
+            hashed_password=hashed_password,
+            role=user.role
         )
         self.db.add(db_user)
         await self.db.commit()
