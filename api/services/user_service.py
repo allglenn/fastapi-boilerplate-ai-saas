@@ -104,6 +104,10 @@ class UserService:
         return self._map_to_user_in_db(db_user)
 
     async def delete_user(self, user_id: int) -> None:
+        # check if user is admin
+        user = await self.get_user(user_id)
+        if user.role == UserRole.ADMIN:
+            raise HTTPException(status_code=400, detail="Admin role cannot be deleted")
         query = delete(UserDB).where(UserDB.id == user_id)
         await self.db.execute(query)
         await self.db.commit()

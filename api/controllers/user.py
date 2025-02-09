@@ -40,3 +40,8 @@ class UserController:
     async def update_user(user_id: int, user_data: UserUpdate, db: AsyncSession) -> User:
         user_service = UserService(db)
         return await user_service.update_user(user_id, user_data)
+    
+    @staticmethod
+    async def delete_user(user_id: int, db: AsyncSession) -> None:
+        user_service = UserService(db)
+        return await user_service.delete_user(user_id)

@@ -7,6 +7,7 @@ from views.auth import get_current_user
 from typing import List
 from db.models import UserRole
 from services.user_service import UserService
+from fastapi import Depends
 
 # Create router with prefix
 router = APIRouter(prefix="/users", tags=["users"])
@@ -46,3 +47,10 @@ async def update_user(
     db: AsyncSession = Depends(get_db)
 ) -> User:
     return await UserController.update_user(user_id, user_data, db)
+
+@router.delete("/{user_id}", status_code=204)
+async def delete_user(
+    user_id: int,
+    db: AsyncSession = Depends(get_db)
+) -> None:
+    return await UserController.delete_user(user_id, db)
