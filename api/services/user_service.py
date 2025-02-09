@@ -137,3 +137,13 @@ class UserService:
         await self.db.commit()
         db_user = await self.get_user(user_id)  
         return self._map_to_user(db_user)
+
+    async def get_latest_users(self, limit: int = 100) -> list[User]:
+        query = (
+            select(UserDB)
+            .order_by(UserDB.id.desc())
+            .limit(limit)
+        )
+        result = await self.db.execute(query)
+        users = result.scalars().all()
+        return [self._map_to_user(user) for user in users]

@@ -1,10 +1,22 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.user import User, UserCreate, UserUpdate
 from services.user_service import UserService
+from typing import List
+from utils.auth import get_current_user
+from db.models import UserRole
+from db.database import get_db
 
+router = APIRouter()
 
 class UserController:
+    @staticmethod
+    async def get_users_list(current_user: User, db: AsyncSession) -> List[User]:
+        if current_user.role != UserRole.ADMIN:
+            raise HTTPException(status_code=403, detail="Admin role required")
+        user_service = UserService(db)
+        return await user_service.get_latest_users(limit=100)
+
     @staticmethod
     async def create_user(user_data: UserCreate, db: AsyncSession) -> User:
         user_service = UserService(db)
