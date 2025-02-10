@@ -37,11 +37,19 @@ class UserController:
         return user 
     
     @staticmethod
-    async def update_user(user_id: int, user_data: UserUpdate, db: AsyncSession) -> User:
+    async def update_user(current_user: User, user_id: int, user_data: UserUpdate, db: AsyncSession) -> User:
+        if current_user.id != user_id and current_user.role != UserRole.ADMIN:
+            raise HTTPException(status_code=403, detail="You are not allowed to update other users")
         user_service = UserService(db)
         return await user_service.update_user(user_id, user_data)
     
     @staticmethod
-    async def delete_user(user_id: int, db: AsyncSession) -> None:
+    async def delete_user(
+        user_id: int,
+        current_user: User,
+        db: AsyncSession
+    ) -> None:
+        if current_user.id != user_id and current_user.role != UserRole.ADMIN:
+            raise HTTPException(status_code=403, detail="You are not allowed to delete other users")
         user_service = UserService(db)
-        return await user_service.delete_user(user_id)
+        await user_service.delete_user(user_id)

@@ -18,7 +18,7 @@ interface UpdateUserForm {
 
 export default function EditUser() {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [user, setUser] = useState<User | null>(null);
@@ -31,8 +31,8 @@ export default function EditUser() {
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem("token");
-        if (!token) {
-          navigate("/login");
+        if (!token || !id) {
+          navigate("/users");
           return;
         }
 
@@ -55,6 +55,8 @@ export default function EditUser() {
         setError("Failed to fetch user data");
         if (axios.isAxiosError(error) && error.response?.status === 401) {
           navigate("/login");
+        } else {
+          navigate("/users");
         }
       }
     };

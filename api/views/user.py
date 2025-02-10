@@ -41,16 +41,19 @@ async def get_user(
     return await UserController.get_user(user_id, db)
 
 @router.put("/{user_id}", response_model=User)
+#get current user 
 async def update_user(
     user_id: int,
     user_data: UserUpdate,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ) -> User:
-    return await UserController.update_user(user_id, user_data, db)
+    return await UserController.update_user(current_user, user_id, user_data, db)
 
 @router.delete("/{user_id}", status_code=204)
 async def delete_user(
     user_id: int,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> None:
-    return await UserController.delete_user(user_id, db)
+    return await UserController.delete_user(user_id, current_user, db)

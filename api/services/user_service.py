@@ -105,9 +105,6 @@ class UserService:
 
     async def delete_user(self, user_id: int) -> None:
         # check if user is admin
-        user = await self.get_user(user_id)
-        if user.role == UserRole.ADMIN:
-            raise HTTPException(status_code=400, detail="Admin role cannot be deleted")
         query = delete(UserDB).where(UserDB.id == user_id)
         await self.db.execute(query)
         await self.db.commit()
@@ -139,8 +136,12 @@ class UserService:
         )
         await self.db.execute(query)
         await self.db.commit()
-        db_user = await self.get_user(user_id)  
-        return self._map_to_user(db_user)
+        
+        # Fetch the updated user
+        updated_user = await self.get_user(user_id)
+        if not updated_user:
+            raise HTTPException(status_code=404, detail="User not found")
+        return updated_user
 
     async def get_latest_users(self, limit: int = 100) -> list[User]:
         query = (
