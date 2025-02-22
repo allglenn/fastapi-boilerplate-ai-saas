@@ -4,17 +4,18 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
     plugins: [react()],
     server: {
-        host: '0.0.0.0',
+        host: true,
         port: 3000,
+        strictPort: true,
         cors: {
-            origin: '*',
+            origin: true,
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             allowedHeaders: ['Content-Type', 'Authorization'],
             credentials: true
         },
         hmr: {
             clientPort: 3001,
-            host: 'localhost',
+            path: '@vite/client',
         },
         watch: {
             usePolling: true
@@ -26,4 +27,10 @@ export default defineConfig({
             'Access-Control-Allow-Credentials': 'true'
         }
     },
+    preview: {
+        port: 3000,
+        strictPort: true,
+        host: true,
+        cors: true
+    }
 }) 
