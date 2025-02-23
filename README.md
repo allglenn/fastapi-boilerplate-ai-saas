@@ -58,11 +58,13 @@ A modern full-stack boilerplate featuring FastAPI, React, PostgreSQL, and Docker
 
 ## 📁 Project Structure
 
-├── api/ # FastAPI backend
-├── ui-admin/ # Admin interface (React)
-├── client/ # Client interface (React)
-├── docker-compose.yml # Docker composition
+```
+├── api/                 # FastAPI backend
+├── ui-admin/           # Admin interface (React)
+├── client/            # Client interface (React)
+├── docker-compose.yml  # Docker composition
 └── README.md
+```
 
 ## 🔌 Available Services
 
